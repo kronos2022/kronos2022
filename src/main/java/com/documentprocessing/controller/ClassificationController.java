@@ -17,8 +17,9 @@ class ClassificationController {
     ClassificationService classificationService;
 
     @PostMapping(value = "/classifyDocument")
-    private String classifyDocument(@RequestBody String filePath) throws IOException {
-        classificationService.classifyDocument("psyched-signal-345109", "us", "", filePath, "TCN1923385036317392896");
+    private String classifyDocument() throws IOException {
+        String filePath="C://Users//Komal//Downloads//dtb_claim_form_insurance.pdf";
+        classificationService.classifyDocument("psyched-signal-345109", "us", "60c96e1afcf82c4a", filePath, "TCN1923385036317392896");
         return "Success";
     }
 }
