@@ -8,32 +8,31 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
-
-/**
- * Please check and modify the json path from application.properties, if needed.
- */
 
 @Service
 @Slf4j
 public class FirebaseInitializer {
 
     final String serviceAccountKeyPath;
+    final String projectId;
 
-    public FirebaseInitializer(@Value("${service-account-json.path}") final String serviceAccountKeyPath) {
+    public FirebaseInitializer(@Value("${service-account-json.path}") final String serviceAccountKeyPath,
+                               @Value("${project-id}") final String projectId) {
         this.serviceAccountKeyPath = serviceAccountKeyPath;
+        this.projectId = projectId;
         log.debug("Check if path is populated : {}", serviceAccountKeyPath);
+        log.debug("Check if projectId is populated : {}", projectId);
     }
 
     @PostConstruct
     public void initialize() {
         try {
 
-            FileInputStream serviceAccount = new FileInputStream(serviceAccountKeyPath);
+            GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(credentials)
+                    .setProjectId(projectId)
                     .build();
-
             FirebaseApp.initializeApp(options);
 
         } catch (Exception exception) {

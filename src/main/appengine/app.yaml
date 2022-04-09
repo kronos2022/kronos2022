@@ -1,0 +1,17 @@
+#runtime: java
+#env: flex
+#runtime_config:
+#  jdk: openjdk8
+#handlers:
+#  - url: /.*
+#    script: this field is required, but ignored
+#manual_scaling:
+#  instances: 3
+runtime: java11
+env: standard
+handlers:
+  - url: .*
+    script: this field is required, but ignored
+manual_scaling:
+  instances: 3
+#service_account: psyched-signal-345109@appspot.gserviceaccount.com
