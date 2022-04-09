@@ -13,14 +13,10 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class FirebaseInitializer {
 
-    final String serviceAccountKeyPath;
     final String projectId;
 
-    public FirebaseInitializer(@Value("${service-account-json.path}") final String serviceAccountKeyPath,
-                               @Value("${project-id}") final String projectId) {
-        this.serviceAccountKeyPath = serviceAccountKeyPath;
+    public FirebaseInitializer(@Value("${project-id}") final String projectId) {
         this.projectId = projectId;
-        log.debug("Check if path is populated : {}", serviceAccountKeyPath);
         log.debug("Check if projectId is populated : {}", projectId);
     }
 
