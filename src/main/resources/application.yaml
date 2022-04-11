@@ -1,0 +1,6 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+
+project-id: psyched-signal-345109
