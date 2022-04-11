@@ -28,6 +28,7 @@ public class FirebaseInitializer {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(credentials)
                     .setProjectId(projectId)
+                    .setStorageBucket("psyched-signal-345109.appspot.com")
                     .build();
             FirebaseApp.initializeApp(options);
 

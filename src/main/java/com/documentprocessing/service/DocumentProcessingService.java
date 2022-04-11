@@ -5,11 +5,13 @@ import com.google.cloud.documentai.v1.Document;
 import com.google.cloud.documentai.v1.*;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,12 +21,17 @@ import static com.documentprocessing.constants.Constants.*;
 @Service
 @Slf4j
 public class DocumentProcessingService {
-    public void fullDocumentProcessing(String filePath) throws IOException {
-        String text = performOcrOnDocument(filePath);
+
+    @Autowired
+    private FileService fileService;
+
+    public void fullDocumentProcessing(MultipartFile file) throws IOException {
+        String url = fileService.upload(file);
+        String text = performOcrOnDocument(url);
         String predictedModel = classify(text);
         switch (predictedModel) {
             case INSURANCE_MODEL_NAME:
-                predict(INSURANCE_MODEL_ID,text);
+                predict(INSURANCE_MODEL_ID, text);
                 break;
             case FCA_MODEL_NAME:
                 log.info("In Case2");
@@ -35,10 +42,12 @@ public class DocumentProcessingService {
     public String performOcrOnDocument(String filePath) throws IOException {
 
         try (DocumentProcessorServiceClient client = DocumentProcessorServiceClient.create()) {
-            String name = String.format("projects/%s/locations/%s/processors/%s",PROJECT_ID,LOCATION_US,OCR_PROCESSOR_ID);
+            String name = String.format("projects/%s/locations/%s/processors/%s", PROJECT_ID, LOCATION_US, OCR_PROCESSOR_ID);
 
             // Read the file.
-            byte[] fileData = Files.readAllBytes(Paths.get(filePath));
+            URL url = new URL(filePath);
+            InputStream in = url.openStream();
+            byte[] fileData = in.readAllBytes();
 
             // Convert the image data to a Buffer and base64 encode it.
             ByteString content = ByteString.copyFrom(fileData);
@@ -66,7 +75,7 @@ public class DocumentProcessingService {
     private String classify(String content) throws IOException {
         try (PredictionServiceClient client = PredictionServiceClient.create()) {
             // Get the full path of the model.
-            ModelName name = ModelName.of(PROJECT_ID, "us-central1",CLASSIFY_MODEL_ID );
+            ModelName name = ModelName.of(PROJECT_ID, "us-central1", CLASSIFY_MODEL_ID);
 
             TextSnippet textSnippet = TextSnippet.newBuilder().setContent(content).setMimeType("text/plain") // Types: text/plain, text/html
                     .build();
@@ -94,11 +103,11 @@ public class DocumentProcessingService {
             }
             log.info(("Predicted Label: " + predictedModel));
 
-        return predictedModel;
+            return predictedModel;
         }
     }
 
-    private static void predict(String model_ID,String content) throws IOException {
+    private static void predict(String model_ID, String content) throws IOException {
 
         try (PredictionServiceClient client = PredictionServiceClient.create()) {
             // Get the full path of the model.
