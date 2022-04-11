@@ -4,9 +4,3 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
 
 project-id: psyched-signal-345109
-
-classification:
-  file-path: <put the file path here>
-  location: us
-  processor-id: 60c96e1afcf82c4a
-  model-id: TCN1923385036317392896

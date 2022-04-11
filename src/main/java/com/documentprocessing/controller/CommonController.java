@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("unused")
 public class CommonController {
 
-    @GetMapping(value = "test")
+    @GetMapping(value = "test-app")
     private String testApplication() {
         return "Spring boot application running";
     }
