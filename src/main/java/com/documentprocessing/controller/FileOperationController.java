@@ -23,9 +23,14 @@ public class FileOperationController {
         return fileService.upload(multipartFile);
     }
 
-    @PostMapping("/profile/pic/{fileName}")
-    public Object download(@PathVariable String fileName) throws IOException {
+    @PostMapping("/download")
+    public Object download(@RequestParam String fileName) throws IOException {
         log.info("HIT -/download | File Name : {}", fileName);
         return fileService.download(fileName);
+    }
+
+    @GetMapping("/test")
+    public void test() {
+        fileService.someMethod();
     }
 }
