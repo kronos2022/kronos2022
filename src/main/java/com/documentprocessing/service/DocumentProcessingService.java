@@ -10,9 +10,13 @@ import com.google.cloud.documentai.v1.*;
 import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -25,13 +29,18 @@ import static com.documentprocessing.constants.Constants.*;
 @Service
 @Slf4j
 public class DocumentProcessingService {
-    public String fullDocumentProcessing(String filePath) throws IOException {
+
+    @Autowired
+    private FileService fileService;
+
+    public String fullDocumentProcessing(MultipartFile file) throws IOException {
+        String url = fileService.upload(file);
         String response = null;
-        Document document = performOcrOnDocument(filePath);
+        Document document = performOcrOnDocument(url);
         String predictedModel = classify(document.getText());
         switch (predictedModel) {
             case INSURANCE_MODEL_NAME:
-                response= predict(INSURANCE_MODEL_ID, document);
+                response = predict(INSURANCE_MODEL_ID, document);
                 break;
             case FCA_MODEL_NAME:
                 log.info("In Case2");
@@ -46,7 +55,9 @@ public class DocumentProcessingService {
             String name = String.format("projects/%s/locations/%s/processors/%s", PROJECT_ID, LOCATION_US, OCR_PROCESSOR_ID);
 
             // Read the file.
-            byte[] fileData = Files.readAllBytes(Paths.get(filePath));
+            URL url = new URL(filePath);
+            InputStream in = url.openStream();
+            byte[] fileData = in.readAllBytes();
 
             // Convert the image data to a Buffer and base64 encode it.
             ByteString content = ByteString.copyFrom(fileData);

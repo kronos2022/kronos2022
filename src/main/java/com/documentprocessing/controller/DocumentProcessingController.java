@@ -6,25 +6,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 class DocumentProcessingController {
 
     @Autowired
     DocumentProcessingService documentProcessingService;
 
-    @GetMapping(value = "/test")
-    private String testApplication() {
-        return "Spring boot application running";
-    }
-
     @PostMapping(value = "/fullDocumentProcessing")
-    private String fullDocumentProcessing(@RequestBody OcrFileInput ocrFileInput) throws IOException {
-        System.out.println("File path" +ocrFileInput.getFilePath());
-        return documentProcessingService.fullDocumentProcessing(ocrFileInput.getFilePath());
+    private String fullDocumentProcessing(@RequestPart MultipartFile multipartFile) throws IOException {
+//        System.out.println("File path" +ocrFileInput.getFilePath());
+        return documentProcessingService.fullDocumentProcessing(multipartFile);
     }
 }
