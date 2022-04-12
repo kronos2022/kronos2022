@@ -25,7 +25,6 @@ class DocumentProcessingController {
     @PostMapping(value = "/fullDocumentProcessing")
     private String fullDocumentProcessing(@RequestBody OcrFileInput ocrFileInput) throws IOException {
         System.out.println("File path" +ocrFileInput.getFilePath());
-        documentProcessingService.fullDocumentProcessing(ocrFileInput.getFilePath());
-        return "Success";
+        return documentProcessingService.fullDocumentProcessing(ocrFileInput.getFilePath());
     }
 }
