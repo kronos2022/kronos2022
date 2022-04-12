@@ -2,17 +2,21 @@ package com.documentprocessing.service;
 
 import com.documentprocessing.models.Response;
 import com.documentprocessing.models.ResponseDataList;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.automl.v1.*;
 import com.google.cloud.documentai.v1.Document;
 import com.google.cloud.documentai.v1.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,6 +116,7 @@ public class DocumentProcessingService {
 
     private static String predict(String model_ID, Document document) throws IOException {
         String jsonResponse = null;
+        ResponseDataList responseDataList = new ResponseDataList();
         try (PredictionServiceClient client = PredictionServiceClient.create()) {
             // Get the full path of the model.
             ModelName name = ModelName.of(PROJECT_ID, LOCATION_CENTRAL_US, model_ID);
@@ -127,7 +132,7 @@ public class DocumentProcessingService {
 
             PredictResponse response = client.predict(predictRequest);
             List<Response> responseList = new ArrayList<>();
-            ResponseDataList responseDataList = new ResponseDataList();
+
             Map<Integer, Map<Integer, String>> pageLineTextMap = setPageNumberAndLineNumberMap(document, document.getText());
             for (AnnotationPayload annotationPayload : response.getPayloadList()) {
                 Response responsePayload = new Response();
@@ -148,11 +153,8 @@ public class DocumentProcessingService {
             }
             responseDataList.setResponse(responseList);
 
-            ObjectMapper mapper = new ObjectMapper();
-            jsonResponse = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseDataList);
-            System.out.println(jsonResponse);
         }
-        return jsonResponse;
+        return responseDataList.toString();
     }
 
 
