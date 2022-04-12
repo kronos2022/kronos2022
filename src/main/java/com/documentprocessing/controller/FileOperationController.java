@@ -11,6 +11,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/file-operations")
 @Slf4j
+@CrossOrigin(origins = "*")
 @SuppressWarnings("unused")
 public class FileOperationController {
 

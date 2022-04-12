@@ -4,6 +4,7 @@ import com.documentprocessing.service.DocumentProcessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 class DocumentProcessingController {
 
     @Autowired
