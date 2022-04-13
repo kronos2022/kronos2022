@@ -22,7 +22,6 @@ class DocumentProcessingController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PostMapping(value = "/fullDocumentProcessing",headers="Accept=application/json")
-    @PostMapping(value = "/fullDocumentProcessing")
     private String fullDocumentProcessing(@RequestPart MultipartFile multipartFile) throws IOException {
 //        System.out.println("File path" +ocrFileInput.getFilePath());
         return documentProcessingService.fullDocumentProcessing(multipartFile);
