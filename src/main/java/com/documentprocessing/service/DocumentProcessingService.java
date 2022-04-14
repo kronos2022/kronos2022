@@ -142,7 +142,7 @@ public class DocumentProcessingService {
             for (AnnotationPayload annotationPayload : response.getPayloadList()) {
                 String annotationDisplayName = annotationPayload.getDisplayName();
                 if (!annotationPayload.getDisplayName().contains("Consumer_Helpline")) {
-                    if (!annotationPayload.getDisplayName().equals("Footer")) {
+                    if (!annotationPayload.getDisplayName().contains("Footer")) {
                         responsePayload = new Response();
 
                         responsePayload.setAttributeName(annotationDisplayName);
