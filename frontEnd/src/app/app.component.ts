@@ -2,6 +2,7 @@ import { formatDate } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as JSZip from 'jszip';
+import Swal from 'sweetalert2';
 import { AppService } from './app.service';
 let zipFile: JSZip = new JSZip();
 
@@ -47,6 +48,10 @@ export class AppComponent {
       formData.append("multipartFile",this.fileValue, this.fileValue.name);
       this.fileService.passFile(formData).subscribe((data: any) =>{
         console.log(data)
+        if(data == null){
+          Swal.fire('Success','File uploaded successfully!!','success');
+          this.myForm.reset();
+        }
       });
     
   }
