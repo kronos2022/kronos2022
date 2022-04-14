@@ -9,4 +9,6 @@ public class Constants {
     public static final String INSURANCE_MODEL_ID ="TEN6629718664931180544";
     public static final String INSURANCE_MODEL_NAME = "Insurance_documents";
     public static final String FCA_MODEL_NAME = "FCA";
+    public static final String FCA_MODEL_ID ="TEN54744683946967040";
+
 }

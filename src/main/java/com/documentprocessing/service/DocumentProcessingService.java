@@ -44,10 +44,10 @@ public class DocumentProcessingService {
         String predictedModel = classify(document.getText());
         switch (predictedModel) {
             case INSURANCE_MODEL_NAME:
-                response = predict(INSURANCE_MODEL_ID, document);
+                response = predict(INSURANCE_MODEL_ID, document,INSURANCE_MODEL_NAME);
                 break;
             case FCA_MODEL_NAME:
-                log.info("In Case2");
+                response = predict(FCA_MODEL_ID, document,FCA_MODEL_NAME);
                 break;
         }
         return response;
@@ -114,7 +114,8 @@ public class DocumentProcessingService {
         }
     }
 
-    private static String predict(String model_ID, Document document) throws IOException {
+    private static String predict(String model_ID, Document document, String model_name) throws IOException {
+        System.out.println(document.getText());
         String jsonResponse = null;
         ResponseDataList responseDataList = new ResponseDataList();
         try (PredictionServiceClient client = PredictionServiceClient.create()) {
@@ -132,25 +133,43 @@ public class DocumentProcessingService {
 
             PredictResponse response = client.predict(predictRequest);
             List<Response> responseList = new ArrayList<>();
+            Response responsePayload=null;
 
             Map<Integer, Map<Integer, String>> pageLineTextMap = setPageNumberAndLineNumberMap(document, document.getText());
+            System.out.println(response.getPayloadList());
             for (AnnotationPayload annotationPayload : response.getPayloadList()) {
-                Response responsePayload = new Response();
-                responsePayload.setAttributeName(annotationPayload.getDisplayName());
-                responsePayload.setAttributeValue(annotationPayload.getTextExtraction().getTextSegment().getContent());
-                responsePayload.setAttributeScore(Double.parseDouble(String.valueOf(annotationPayload.getTextExtraction().getScore())));
-                for (Map.Entry<Integer, Map<Integer, String>> page : pageLineTextMap.entrySet()) {
-                    for (Map.Entry<Integer, String> lineMap : page.getValue().entrySet()) {
-                        String line = lineMap.getValue();
-                        if (line.contains(annotationPayload.getDisplayName().replace("_", " ").toUpperCase(Locale.ROOT))) {
-                            responsePayload.setLineNumber(String.valueOf(lineMap.getKey()));
-                            responsePayload.setPageNumber(String.valueOf(page.getKey()));
-                            break;
+
+                if(!annotationPayload.getDisplayName().equals("Footer")&&!annotationPayload.getDisplayName().equals("Consumer_Helpline")) {
+                    responsePayload = new Response();
+                    responsePayload.setAttributeName(annotationPayload.getDisplayName());
+                    System.out.println(annotationPayload.getTextExtraction().getTextSegment().getContent().replaceAll("\n", ""));
+                    responsePayload.setAttributeValue(annotationPayload.getTextExtraction().getTextSegment().getContent().replaceAll("\n", ""));
+                    responsePayload.setAttributeScore(Double.parseDouble(String.valueOf(annotationPayload.getTextExtraction().getScore())));
+
+                    for (Map.Entry<Integer, Map<Integer, String>> page : pageLineTextMap.entrySet()) {
+                        for (Map.Entry<Integer, String> lineMap : page.getValue().entrySet()) {
+                            String line = lineMap.getValue();
+                            if (model_name.equals(INSURANCE_MODEL_NAME)) {
+                                if (line.contains(annotationPayload.getDisplayName().replace("_", " ").toUpperCase(Locale.ROOT))) {
+                                    responsePayload.setLineNumber(String.valueOf(lineMap.getKey()));
+                                    responsePayload.setPageNumber(String.valueOf(page.getKey()));
+                                    break;
+                                }
+                            } else if (model_name.equals(FCA_MODEL_NAME)) {
+                                if (line.contains(annotationPayload.getTextExtraction().getTextSegment().getContent())) {
+                                    responsePayload.setLineNumber(String.valueOf(lineMap.getKey()));
+                                    responsePayload.setPageNumber(String.valueOf(page.getKey()));
+                                    break;
+                                }
+                            }
+
                         }
                     }
                 }
+                if(responsePayload!=null)
                 responseList.add(responsePayload);
             }
+            System.out.println(responseList);
             responseDataList.setResponse(responseList);
 
         }
