@@ -25,13 +25,12 @@ public class FileService {
     private final Bucket bucket = StorageClient.getInstance().bucket();
 
     public String upload(MultipartFile multipartFile) throws IOException {
-        String fileName = multipartFile.getOriginalFilename();                        // to get original file name
+        String fileName = multipartFile.getOriginalFilename();
         assert fileName != null;
-        Path path = this.writeToTempFile(multipartFile);                      // to convert multipartFile to File
-        String TEMP_URL = this.uploadFile(path, fileName, multipartFile.getContentType()); // to get uploaded file link
+        Path path = this.writeToTempFile(multipartFile);
+        String TEMP_URL = this.uploadFile(path, fileName, multipartFile.getContentType());
         assert Files.deleteIfExists(path);
-        return TEMP_URL;                                                              // Your customized response
-
+        return TEMP_URL;
     }
 
     public String download(String fileName) throws IOException {
@@ -49,7 +48,7 @@ public class FileService {
         Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
         Blob blob = storage.create(blobInfo, Files.readAllBytes(path));
         URL downloadURL = blob.signUrl(1, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
-        log.debug("Sign Url: {}", downloadURL);
+        log.debug("Signed Url: {}", downloadURL);
         return downloadURL.toString();
     }
 

@@ -2,30 +2,21 @@ package com.documentprocessing.service;
 
 import com.documentprocessing.models.Response;
 import com.documentprocessing.models.ResponseDataList;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.automl.v1.*;
 import com.google.cloud.documentai.v1.Document;
 import com.google.cloud.documentai.v1.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import static com.documentprocessing.constants.Constants.*;
@@ -36,10 +27,12 @@ public class DocumentProcessingService {
 
     @Autowired
     private FileService fileService;
+    @Autowired
+    private DocumentDataService documentDataService;
 
     public String fullDocumentProcessing(MultipartFile file) throws IOException {
         String url = fileService.upload(file);
-        String response = null;
+        ResponseDataList response = new ResponseDataList();
         Document document = performOcrOnDocument(url);
         String predictedModel = classify(document.getText());
         switch (predictedModel) {
@@ -48,9 +41,14 @@ public class DocumentProcessingService {
                 break;
             case FCA_MODEL_NAME:
                 response = predict(FCA_MODEL_ID, document, FCA_MODEL_NAME);
+                try {
+                    documentDataService.saveFcaClassification(response);
+                } catch (Exception e) {
+                    log.error("****====== FCA Response Save Error ======**** \n {}", e.getMessage());
+                }
                 break;
         }
-        return response;
+        return response.toString();
     }
 
     public Document performOcrOnDocument(String filePath) throws IOException {
@@ -73,9 +71,8 @@ public class DocumentProcessingService {
 
             // Recognizes text entities in the PDF document
             ProcessResponse result = client.processDocument(request);
-            Document document = result.getDocument();
 
-            return document;
+            return result.getDocument();
         }
     }
 
@@ -92,14 +89,11 @@ public class DocumentProcessingService {
 
             PredictResponse response = client.predict(predictRequest);
 
-            for (AnnotationPayload annotationPayload : response.getPayloadList()) {
-                System.out.format("Predicted class name: %s\n", annotationPayload.getDisplayName());
-                System.out.format("Predicted sentiment score: %.2f\n\n", annotationPayload.getClassification().getScore());
-            }
-
             HashMap<String, Float> labelMap = new HashMap<>();
             String predictedModel = "NONE";
             for (AnnotationPayload annotationPayload : response.getPayloadList()) {
+                System.out.format("Predicted class name: %s\n", annotationPayload.getDisplayName());
+                System.out.format("Predicted sentiment score: %.2f\n\n", annotationPayload.getClassification().getScore());
                 labelMap.put(annotationPayload.getDisplayName(), annotationPayload.getClassification().getScore());
             }
             float maxScore = Collections.max(labelMap.values());
@@ -114,10 +108,11 @@ public class DocumentProcessingService {
         }
     }
 
-    private static String predict(String model_ID, Document document, String model_name) throws IOException {
+    private static ResponseDataList predict(String model_ID, Document document, String model_name) throws IOException {
         System.out.println(document.getText());
         String jsonResponse = null;
         ResponseDataList responseDataList = new ResponseDataList();
+        final List<Response> responseList = new ArrayList<>();
         try (PredictionServiceClient client = PredictionServiceClient.create()) {
             // Get the full path of the model.
             ModelName name = ModelName.of(PROJECT_ID, LOCATION_CENTRAL_US, model_ID);
@@ -132,8 +127,7 @@ public class DocumentProcessingService {
                     PredictRequest.newBuilder().setName(name.toString()).setPayload(payload).build();
 
             PredictResponse response = client.predict(predictRequest);
-            List<Response> responseList = new ArrayList<>();
-            Response responsePayload = null;
+            Response responsePayload;
             int fcaUrlCount = 0;
 
             Map<Integer, Map<Integer, String>> pageLineTextMap = setPageNumberAndLineNumberMap(document, document.getText());
@@ -169,16 +163,15 @@ public class DocumentProcessingService {
                             }
                         }
 
-                        if (responsePayload != null)
-                            responseList.add(responsePayload);
+                        responseList.add(responsePayload);
                     }
                 }
             }
-            System.out.println(responseList);
+            log.info("Response List : {}", responseList);
             responseDataList.setResponse(responseList);
 
         }
-        return responseDataList.toString();
+        return responseDataList;
     }
 
 

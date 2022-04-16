@@ -1,4 +1,4 @@
-package com.documentprocessing.model;
+package com.documentprocessing.models.database;
 
 import lombok.*;
 

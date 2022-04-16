@@ -1,6 +1,6 @@
 package com.documentprocessing.controller;
 
-import com.documentprocessing.model.Person;
+import com.documentprocessing.models.database.Person;
 import com.documentprocessing.service.DocumentDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
