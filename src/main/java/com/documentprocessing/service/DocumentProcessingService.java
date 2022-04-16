@@ -38,13 +38,18 @@ public class DocumentProcessingService {
         switch (predictedModel) {
             case INSURANCE_MODEL_NAME:
                 response = predict(INSURANCE_MODEL_ID, document, INSURANCE_MODEL_NAME);
+                try {
+                    documentDataService.saveInsuranceClassification(response);
+                } catch (Exception e) {
+                    log.error("****====== Insurance Classification Response Save Error ======**** \n {}", e.getMessage());
+                }
                 break;
             case FCA_MODEL_NAME:
                 response = predict(FCA_MODEL_ID, document, FCA_MODEL_NAME);
                 try {
                     documentDataService.saveFcaClassification(response);
                 } catch (Exception e) {
-                    log.error("****====== FCA Response Save Error ======**** \n {}", e.getMessage());
+                    log.error("****====== FCA Classification Response Save Error ======**** \n {}", e.getMessage());
                 }
                 break;
         }
