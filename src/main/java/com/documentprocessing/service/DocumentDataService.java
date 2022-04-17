@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -23,7 +25,6 @@ import static com.documentprocessing.constants.InsuranceAttributes.*;
 @DependsOn("firebaseInitializer")
 public class DocumentDataService {
 
-    private final String COMPANY_HOUSE_COLLECTION = "company-house";
     private final String FCA_COLLECTION = "fca";
     private final String INSURANCE_COLLECTION = "insurance-details";
     private final Firestore fireStore = FirestoreClient.getFirestore();
@@ -162,4 +163,174 @@ public class DocumentDataService {
 
         return insuranceModel;
     }
+
+
+    // ********************************** Retrieval Methods ****************************** //
+
+    public List<FCAModel> getFcaEntityByCompanyName(final String companyName) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(FCA_COLLECTION);
+
+        List<FCAModel> companies = new ArrayList<>();
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("companyName.value", companyName)
+                .get();
+
+        if (!querySnapshot.get().getDocuments().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                FCAModel fcaModel = snapshot.toObject(FCAModel.class);
+                companies.add(fcaModel);
+                log.info("FCA model fetched successfully : {} ", fcaModel);
+            }
+        }
+
+        return companies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntityByPolicyNumber(String policyNumber) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo(FieldPath.documentId(), policyNumber)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByCustomerId(String customerId) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("customerId.value", customerId)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByInsuranceType(String insuranceType) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("insuranceType.value", insuranceType)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByIncidentSeverity(String incidentSeverity) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("incidentSeverity.value", incidentSeverity)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByRiskSegmentation(String riskSegmentation) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("riskSegmentation.value", riskSegmentation)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByCustomerIdAndIncidentSeverity(String customerId, String incidentSeverity) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("customerId.value", customerId)
+                .whereEqualTo("incidentSeverity.value", incidentSeverity)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByCustomerIdAndInsuranceType(String customerId, String insuranceType) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("customerId.value", customerId)
+                .whereEqualTo("insuranceType.value", insuranceType)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
+    public List<InsuranceModel> getInsuranceEntitiesByCustomerIdAndRiskSegmentation(String customerId, String riskSegmentation) throws ExecutionException, InterruptedException {
+        final CollectionReference collectionReference = fireStore.collection(INSURANCE_COLLECTION);
+        final List<InsuranceModel> policies = new ArrayList<>();
+
+        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
+                .whereEqualTo("customerId.value", customerId)
+                .whereEqualTo("riskSegmentation.value", riskSegmentation)
+                .get();
+
+        if (!querySnapshot.get().isEmpty()) {
+            for (DocumentSnapshot snapshot : querySnapshot.get().getDocuments()) {
+                InsuranceModel insuranceModel = snapshot.toObject(InsuranceModel.class);
+                policies.add(insuranceModel);
+                log.info("Insurance Model Fetched Successfully : {} ", insuranceModel);
+            }
+        }
+        return policies;
+    }
+
 }
