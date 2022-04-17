@@ -3,7 +3,6 @@ package com.documentprocessing.service;
 import com.documentprocessing.models.ResponseDataList;
 import com.documentprocessing.models.database.FCAModel;
 import com.documentprocessing.models.database.InsuranceModel;
-import com.documentprocessing.models.database.Person;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -11,9 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
