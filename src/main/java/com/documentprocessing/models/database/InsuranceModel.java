@@ -2,6 +2,8 @@ package com.documentprocessing.models.database;
 
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -21,5 +23,6 @@ public class InsuranceModel {
     private Map<String, String> riskSegmentation;
     private Map<String, String> claimStatus;
     private Map<String, String> incidentSeverity;
+    private final List<Map<String, String>> otherAttributes = new ArrayList<>();
     private Long timeStamp;
 }

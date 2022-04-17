@@ -31,48 +31,6 @@ public class DocumentDataService {
     private final String INSURANCE_COLLECTION = "insurance-details";
     private final Firestore fireStore = FirestoreClient.getFirestore();
 
-    public void saveDocument(final List<Person> persons) {
-        final CollectionReference collectionReference = fireStore.collection(COMPANY_HOUSE_COLLECTION);
-
-        persons.forEach(person -> {
-            try {
-                String updateTime = updatePerson(collectionReference, person);
-                log.debug("Person {} updated at time {}", person, updateTime);
-            } catch (Exception e) {
-                log.error("Unable to update record : {} \n Following Exception occurred : {}", person, e);
-            }
-        });
-
-    }
-
-    private String updatePerson(CollectionReference collectionReference, Person person) throws Exception {
-        final ApiFuture<WriteResult> apiFuture = collectionReference.document().create(person);
-        return apiFuture.get().getUpdateTime().toString();
-    }
-
-    public List<Person> getDocumentsByNameAndStatus(final String name, final String status) throws ExecutionException, InterruptedException {
-        final CollectionReference collectionReference = fireStore.collection(COMPANY_HOUSE_COLLECTION);
-        ApiFuture<QuerySnapshot> querySnapshot = collectionReference
-                .whereEqualTo("name", name)
-                .whereEqualTo("designation", status).get();
-        final List<Person> persons = new ArrayList<>();
-        for (DocumentSnapshot documentSnapshot : querySnapshot.get().getDocuments()) {
-            persons.add(documentSnapshot.toObject(Person.class));
-            log.info("Verifying {}", documentSnapshot.get("name"));
-        }
-        return persons;
-    }
-
-    public List<Person> getAllDocuments() throws ExecutionException, InterruptedException {
-        final CollectionReference collectionReference = fireStore.collection(COMPANY_HOUSE_COLLECTION);
-        final List<Person> persons = new ArrayList<>();
-        for (DocumentSnapshot documentSnapshot : collectionReference.get().get().getDocuments()) {
-            persons.add(documentSnapshot.toObject(Person.class));
-            log.info("Verifying {}", documentSnapshot.get("name"));
-        }
-        return persons;
-    }
-
     public void saveFcaClassification(final ResponseDataList responseDataList) throws ExecutionException, InterruptedException {
         final CollectionReference collectionReference = fireStore.collection(FCA_COLLECTION);
         final FCAModel fcaModel = constructFCAStorageModel(responseDataList);
@@ -114,8 +72,16 @@ public class DocumentDataService {
                 case TELEPHONE:
                     fcaModel.getContactNumbers().add(map);
                     break;
+                case FAX:
+                    fcaModel.getFax().add(map);
+                    break;
+                case WEBSITE:
+                    fcaModel.getWebsites().add(map);
+                    break;
                 default:
+                    map.put(ATTRIBUTE_NAME, response.getAttributeName());
                     log.info("Unrecognized Attribute : {}", map);
+                    fcaModel.getOtherAttributes().add(map);
                     break;
             }
         });
@@ -188,6 +154,8 @@ public class DocumentDataService {
                     insuranceModel.setIncidentSeverity(map);
                     break;
                 default:
+                    map.put(ATTRIBUTE_NAME, response.getAttributeName());
+                    insuranceModel.getOtherAttributes().add(map);
                     log.info("Unrecognized Attribute : {}", map);
                     break;
             }

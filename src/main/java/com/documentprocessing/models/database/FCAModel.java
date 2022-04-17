@@ -16,5 +16,8 @@ public class FCAModel {
     private final List<Map<String, String>> addresses = new ArrayList<>();
     private final List<Map<String, String>> contactNumbers = new ArrayList<>();
     private final List<Map<String, String>> emails = new ArrayList<>();
+    private final List<Map<String, String>> fax = new ArrayList<>();
+    private final List<Map<String, String>> websites = new ArrayList<>();
+    private final List<Map<String, String>> otherAttributes = new ArrayList<>();
     private Long timeStamp;
 }
